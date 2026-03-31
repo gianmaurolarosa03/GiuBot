@@ -70,14 +70,7 @@ class TheFinalsAPI:
         return self._session
 
     async def search_player(self, name: str) -> Optional[dict]:
-        seasons = [Config.CURRENT_SEASON, "s9", "s8", "s7", "s6", "s5", "s4"]
-        seen = set()
-        unique = [s for s in seasons if not (s in seen or seen.add(s))]
-        for season in unique:
-            result = await self._search_season(name, season)
-            if result:
-                return result
-        return None
+        return await self._search_season(name, Config.CURRENT_SEASON)
 
     async def autocomplete_search(self, partial: str, max_results: int = 25) -> list[dict]:
         """Cerca nomi parziali per autocomplete. Timeout corto per Discord (3s max)."""
