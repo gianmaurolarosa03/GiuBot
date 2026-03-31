@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = ["python312"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "python bot.py"
+```
+4. Clicca **"Commit changes"**
+
+**3. Verifica che `requirements.txt` sia presente**
+
+Controlla che nel repository ci sia il file `requirements.txt` con dentro:
+```
+discord.py>=2.3.0
+aiohttp>=3.9.0
+python-dotenv>=1.0.0
