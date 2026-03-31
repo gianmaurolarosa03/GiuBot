@@ -15,8 +15,9 @@ class Config:
     # Stagione corrente di The Finals
     # Season 10 inizia il 26/03/2026 — aggiorna questo valore ogni nuova stagione
     # Controlla su https://api.the-finals-leaderboard.com per i valori validi
-    CURRENT_SEASON: str = os.getenv("CURRENT_SEASON", "s10")
-
+    # CURRENT_SEASON: str = os.getenv("CURRENT_SEASON", "s10")
+    CURRENT_SEASON: str = "s10"
+    
     # Piattaforma leaderboard
     PLATFORM: str = os.getenv("PLATFORM", "crossplay")
 
