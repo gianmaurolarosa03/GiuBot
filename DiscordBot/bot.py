@@ -1,10 +1,3 @@
-"""
-The Finals Discord Bot — Stile "Ruby Grind"
-- Leaderboard automatica alle 00:00 (mezzanotte)
-- Rank update ogni ora
-- /leaderboard /ruby /stats visibili solo a chi li usa
-"""
-
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
