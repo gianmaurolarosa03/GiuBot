@@ -729,9 +729,12 @@ async def before_rank_update():
 #  TASK 2: LEADERBOARD GIORNALIERA — OGNI GIORNO ALLE 00:00 UTC
 # ═══════════════════════════════════════════
 
-@tasks.loop(time=time(hour=0, minute=0, tzinfo=timezone.utc))
+
+last_leaderboard_messages = {}
+@tasks.loop(minutes=14)
+
 async def daily_leaderboard():
-    print(f"📊 Leaderboard giornaliera — {datetime.now(timezone.utc).strftime('%d/%m/%Y')}")
+    print(f"📊 Leaderboard — {datetime.now(timezone.utc).strftime('%d/%m/%Y')}")
 
     for guild in bot.guilds:
         lb = await get_leaderboard_channel(guild)
@@ -757,17 +760,32 @@ async def daily_leaderboard():
 
         medals = ["🥇", "🥈", "🥉"]
         lines = []
+        
         for i, p in enumerate(players[:20]):
             medal = medals[i] if i < 3 else f"`{i+1}.`"
             lines.append(f"{medal} **{p['name']}** — {p['league']} — {p['rs']:,} RS")
 
-        today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
-        await lb.send(embed=discord.Embed(
-            title=f"🏆 Classifica giornaliera — {today}",
+        # Cancella il vecchio messaggio leaderboard
+        old_message_id = last_leaderboard_messages.get(guild.id)
+
+        if old_message_id:
+            try:
+                old_msg = await lb.fetch_message(old_message_id)
+                await old_msg.delete()
+            except:
+                pass
+
+        now = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
+
+        new_msg = await lb.send(embed=discord.Embed(
+            title=f"🏆 Leaderboard Server — {now}",
             description="\n".join(lines),
             color=discord.Color.gold(),
             timestamp=datetime.now(timezone.utc)
         ))
+
+        # Salva ID ultimo messaggio
+        last_leaderboard_messages[guild.id] = new_msg.id
 
 
 @daily_leaderboard.before_loop
