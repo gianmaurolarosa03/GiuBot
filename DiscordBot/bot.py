@@ -1,10 +1,3 @@
-"""
-The Finals Discord Bot — Stile "Ruby Grind"
-- Leaderboard automatica alle 00:00 (mezzanotte)
-- Rank update ogni ora
-- /leaderboard /ruby /stats visibili solo a chi li usa
-"""
-
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -58,7 +51,6 @@ async def get_or_create_verified_role(guild):
 
 async def get_leaderboard_channel(guild):
     settings = db.get_guild_settings(guild.id)
-    print(settings)
     cid = settings.get("leaderboard_channel_id")
     if cid:
         ch = guild.get_channel(cid)
@@ -587,8 +579,6 @@ async def setup_cmd(interaction: discord.Interaction):
             topic="Classifica giornaliera e aggiornamenti rank"
         )
     db.update_guild_settings(interaction.guild.id, leaderboard_channel_id=lb_ch.id)
-    print("SALVATO:", lb_ch.id)
-    print(db.get_guild_settings(interaction.guild.id))
 
     embed = discord.Embed(title="⚙️ Setup completato!", color=discord.Color.green())
     embed.add_field(name="Ruoli", value="\n".join(created) + f"\n{verified.mention}", inline=False)
@@ -739,7 +729,7 @@ async def before_rank_update():
 #  TASK 2: LEADERBOARD GIORNALIERA — OGNI GIORNO ALLE 00:00 UTC
 # ═══════════════════════════════════════════
 
-@tasks.loop(minutes=14)
+@tasks.loop(time=time(hour=0, minute=0, tzinfo=timezone.utc))
 async def daily_leaderboard():
     print(f"📊 Leaderboard giornaliera — {datetime.now(timezone.utc).strftime('%d/%m/%Y')}")
 
@@ -772,16 +762,8 @@ async def daily_leaderboard():
             lines.append(f"{medal} **{p['name']}** — {p['league']} — {p['rs']:,} RS")
 
         today = datetime.now(timezone.utc).strftime("%d/%m/%Y")
-        messages = [m async for m in lb.history(limit=20)]
-
-        for m in messages:
-            if m.author == bot.user:
-                try:
-                    await m.delete()
-                except:
-                    pass
         await lb.send(embed=discord.Embed(
-            title="🏆 Leaderboard LIVE",
+            title=f"🏆 Classifica giornaliera — {today}",
             description="\n".join(lines),
             color=discord.Color.gold(),
             timestamp=datetime.now(timezone.utc)
