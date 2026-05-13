@@ -1,4 +1,7 @@
 import discord
+from flask import Flask
+from threading import Thread
+import os
 from discord import app_commands
 from discord.ext import commands, tasks
 import asyncio
@@ -807,9 +810,37 @@ async def on_error(interaction: discord.Interaction, error: app_commands.AppComm
             await interaction.response.send_message("❌ Errore.", ephemeral=True)
 
 
+# ═══════════════════════════════════════════
+#  WEB SERVER (Render Keep Alive)
+# ═══════════════════════════════════════════
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot Discord online!"
+
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
+
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+def keep_alive():
+    t = Thread(target=run_web)
+    t.start()
+
+
+
+
 if __name__ == "__main__":
     token = Config.BOT_TOKEN
     if not token or token == "IL_TUO_TOKEN_QUI":
         print("❌ Token mancante")
         exit(1)
+        
+    keep_alive()
     bot.run(token)
